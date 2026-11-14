@@ -1,1 +1,796 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Application Demi-Fond - 5ème</title>
+    <style>
+        :root {
+            /* Palette Athlétisme / Course à pied */
+            --track-orange: #FF5A00;
+            --asphalt-dark: #1E293B;
+            --asphalt-light: #334155;
+            --bg-app: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #334155;
+            --text-muted: #64748B;
+            
+            /* Couleurs Groupes VMA */
+            --vert: #10B981; 
+            --rouge: #EF4444; 
+            --bleu: #3B82F6; 
+            
+            /* Couleurs Allures */
+            --allure-vma: #EF4444;
+            --allure-footing: #3B82F6;
+            --allure-marche: #10B981;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* ================= HEADER DYNAMIQUE ================= */
+        header {
+            background: linear-gradient(135deg, var(--asphalt-dark) 0%, var(--asphalt-light) 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 4px solid var(--track-orange);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        header h1 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        header p { 
+            margin: 8px 0 0 0; 
+            font-size: 0.9rem; 
+            color: #CBD5E1; 
+            font-weight: 500;
+        }
+
+        /* ================= NAVIGATION TYPE APP ================= */
+        .nav-wrapper {
+            background-color: var(--card-bg);
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            padding: 10px;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .nav-wrapper::-webkit-scrollbar { height: 4px; }
+        .nav-wrapper::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .nav-wrapper button {
+            display: inline-block;
+            padding: 0.75rem 1.2rem;
+            background: var(--bg-app);
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .nav-wrapper button.active {
+            background-color: var(--track-orange);
+            color: white;
+            border-color: var(--track-orange);
+            box-shadow: 0 2px 6px rgba(255, 90, 0, 0.3);
+        }
+
+        /* ================= CONTENEUR PRINCIPAL ================= */
+        .container {
+            max-width: 1100px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            padding-bottom: 4rem;
+        }
+
+        .tab-content { display: none; animation: slideUp 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        .tab-content.active { display: block; }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= CARTES SEANCES ================= */
+        .seance-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+        }
+
+        .seance-header {
+            background: #F8FAFC;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .seance-header h2 {
+            margin: 0;
+            color: var(--asphalt-dark);
+            font-size: 1.3rem;
+        }
+
+        /* ================= GRILLE INFOS ================= */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 1.5rem;
+            background: #FAFAF9;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .info-item {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid #F1F5F9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .info-icon { font-size: 1.4rem; margin-bottom: 8px; display: block;}
+        .info-title { 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            color: var(--track-orange); 
+            margin-bottom: 8px; 
+            display: block;
+            letter-spacing: 0.5px;
+        }
+        .info-desc { font-size: 0.95rem; color: var(--text-main); }
+
+        /* ================= BOUTON FICHE PDF ================= */
+        .btn-fiche {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--asphalt-light);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-fiche:hover {
+            background-color: var(--track-orange);
+            transform: translateY(-1px);
+        }
+        .btn-fiche-eval {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #DC2626; /* Rouge PDF */
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+        }
+        .btn-fiche-eval:hover {
+            background-color: #B91C1C;
+            transform: translateY(-1px);
+        }
+
+        /* ================= PHASES DE LA SEANCE ================= */
+        .phase-block {
+            padding: 1.5rem;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .phase-block:last-child { border-bottom: none; }
+        
+        .phase-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--asphalt-dark);
+            margin-bottom: 1.2rem;
+            background: #F8FAFC;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--track-orange);
+        }
+
+        .phase-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 850px) {
+            .phase-content { grid-template-columns: 1fr; gap: 1rem; }
+        }
+
+        .phase-box {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+        }
+        .phase-box h4 {
+            margin: 0 0 12px 0;
+            color: var(--asphalt-light);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #F1F5F9;
+            padding-bottom: 8px;
+        }
+        
+        .sub-title { font-weight: bold; color: var(--track-orange); margin-top: 10px; margin-bottom: 4px; font-size: 0.9rem;}
+        ul { margin: 0; padding-left: 1.5rem; }
+        li { margin-bottom: 6px; }
+        strong { color: var(--asphalt-dark); }
+        p { margin-top: 0; margin-bottom: 10px; }
+
+        .astuce-prof { background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; }
+        .astuce-prof strong { color: #B45309; }
+
+        .diff-box { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .diff-item { padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 8px; }
+        .diff-vert { background: #ECFDF5; border-left: 4px solid var(--vert); color: #065F46;}
+        .diff-rouge { background: #FEF2F2; border-left: 4px solid var(--rouge); color: #991B1B;}
+        .diff-bleu { background: #EFF6FF; border-left: 4px solid var(--bleu); color: #1E40AF;}
+
+        .badge-allure { display: inline-block; padding: 4px 10px; border-radius: 12px; color: white; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;}
+        .bg-vma { background-color: var(--allure-vma); box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+        .bg-footing { background-color: var(--allure-footing); box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3); }
+        .bg-marche { background-color: var(--allure-marche); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3); }
+
+        .academique { border-left: 3px solid #8B5CF6; background-color: #F5F3FF; padding: 12px; border-radius: 0 6px 6px 0; font-size: 0.9rem; color: #4C1D95; margin-top: 15px;}
+
+        /* ================= TABLEAU EVALUATION ================= */
+        .eval-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #E2E8F0; }
+        .eval-table th, .eval-table td { padding: 15px; border-bottom: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; vertical-align: top;}
+        .eval-table th { background: var(--asphalt-dark); color: white; font-weight: 600; text-align: left; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
+        .eval-table tr:last-child td { border-bottom: none; }
+        .eval-table td:last-child, .eval-table th:last-child { border-right: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>👟 Demi-Fond 5ème - Guide Enseignant</h1>
+        <p>CA1 : Produire une performance optimale - Gérer son effort</p>
+    </header>
+
+    <div class="nav-wrapper" id="nav-menu">
+        <button class="active" onclick="openTab('tab-s1', this)">⏱️ L1 Vameval</button>
+        <button onclick="openTab('tab-s2', this)">🪙 L2 Pièces</button>
+        <button onclick="openTab('tab-s3', this)">🪭 L3 Éventail 3'</button>
+        <button onclick="openTab('tab-s4', this)">🔀 L4 Multiparcours</button>
+        <button onclick="openTab('tab-s5', this)">📈 L5 Bilan d'étape</button>
+        <button onclick="openTab('tab-s6', this)">🏠 L6 Le Refuge</button>
+        <button onclick="openTab('tab-s7', this)">⛰️ L7 Montagnes</button>
+        <button onclick="openTab('tab-s8', this)">🎯 L8 Projet</button>
+        <button onclick="openTab('tab-eval', this)">🏆 Évaluation</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ================= LECON 1 ================= -->
+        <div id="tab-s1" class="tab-content active">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>⏱️ L1 : Test Vameval & Ressentis physiologiques</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Faire le lien entre l'effort physique et le rythme cardiaque. Déterminer la Vitesse Maximale Aérobie (VMA).</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">👥</span>
+                        <span class="info-title">Organisation & Matériel</span>
+                        <span class="info-desc">Binômes (Coureur/Observateur). Prévoir 8 plots espacés de 20m sur la piste. Tablette, sono pour les bips.</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Introduction & Pouls (15 min)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>🗣️ Démarche (Ce que dit le prof)</h4>
+                            <p>"Nous allons courir pendant plusieurs semaines. Pour progresser, il faut connaître son moteur."</p>
+                            <ul>
+                                <li><strong>Au repos :</strong> "Placez 2 doigts sur le cou. Je compte 15 sec, vous multipliez par 4."</li>
+                                <li><strong>Après effort :</strong> "Faites 20 squats rapides. Reprenez votre pouls. Que s'est-il passé ?"</li>
+                            </ul>
+                            <div class="astuce-prof"><strong>Indice de Parole :</strong> "Si vous pouvez parler normalement, vous êtes en endurance. Si vous ne pouvez plus faire une phrase, vous êtes dans le rouge."</div>
+                        </div>
+                        <div class="phase-box">
+                            <h4>✅ Critères & Remédiation</h4>
+                            <ul>
+                                <li><strong>Critère :</strong> L'élève trouve sa pulsation et comprend le lien effort/oxygène.</li>
+                                <li><strong>Remédiation :</strong> S'ils ne trouvent pas à la carotide, essayer le poignet ou la main sur le cœur.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>2️⃣</span> Le Test Vameval (25 min)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif & Consignes</h4>
+                            <p><strong>Organisation :</strong> Placez 8 plots tous les 20m. Observateurs avec stylo au centre.</p>
+                            <ul>
+                                <li>"Le but n'est pas d'être premier, c'est de suivre la bande son. Au bip, soyez à côté d'un plot."</li>
+                                <li>"Ne sprintez pas au départ (marche rapide au palier 8)!"</li>
+                                <li>"2 mètres de retard sur 2 plots = arrêt du test."</li>
+                            </ul>
+                        </div>
+                        <div class="phase-box">
+                            <h4>👀 Ce que le prof observe</h4>
+                            <ul>
+                                <li>Freiner les sprinteurs du premier palier.</li>
+                                <li><strong>Sécurité :</strong> Exiger qu'un élève qui abandonne se décale vers l'intérieur pour marcher.</li>
+                            </ul>
+                            <div class="astuce-prof"><strong>Rôle :</strong> L'observateur note le palier sur la fiche, et le professeur saisit la VMA sur iDoceo.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 2 ================= -->
+        <div id="tab-s2" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>🪙 L2 : La Course aux Pièces (Prédiction)</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Sortir de la course aléatoire. L'élève doit apprendre à anticiper son allure. Bonus de pièces s'il respecte son objectif.</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🧠</span>
+                        <span class="info-title">Focus Académique</span>
+                        <span class="info-desc">L'observateur devient un "Pacer" pour aider physiquement son camarade à réguler sa vitesse.</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Course aux Pièces (25 min)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif & Consignes</h4>
+                            <p><strong>Dispositif :</strong> Plots tous les 25m. 1 plot franchi = 1 pièce. <br>3 courses : <strong>4min30 / 3min / 1min30.</strong></p>
+                            <a href="https://drive.google.com/file/d/17yli0osUsxBgBfa-xmDV9W1aHcRGDOZq/view?usp=drivesdk" target="_blank" class="btn-fiche">📄 Ouvrir la Fiche PDF (Pièces & Ressentis)</a>
+                            <div class="sub-title">Consignes :</div>
+                            <ul>
+                                <li>"Avant de partir, dites combien de pièces vous allez récolter. L'observateur valide les points (et met 0 si le coureur marche !)."</li>
+                                <li>"Bonus de 20 pièces si vous atteignez la vitesse cible. Notez également votre ressenti (smileys) à la fin."</li>
+                            </ul>
+                        </div>
+                        <div class="phase-box">
+                            <h4>✅ Critères de Réussite</h4>
+                            <ul>
+                                <li><strong>Méthodo :</strong> L'écart prédiction/réalisation se réduit. L'élève se connaît mieux.</li>
+                                <li><strong>Moteur :</strong> La distance sur 1'30 est supérieure à la moitié de la distance sur 3'.</li>
+                            </ul>
+                            <div class="astuce-prof"><strong>Astuce :</strong> Les élèves calquent leur vitesse sur le copain de devant. Répétez : "Faites VOTRE course, restez dans votre bulle."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>2️⃣</span> Course Relais par Équipe (15 min)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif</h4>
+                            <p>Équipes hétérogènes de 4 (distribuer des dossards). Formule relais ou "train". On additionne les pièces de toute l'équipe.</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>✅ Objectif Socio-Affectif</h4>
+                            <p>Maintenir sa VMA ou la dépasser pour l'équipe (motivation extrinsèque).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 3 ================= -->
+        <div id="tab-s3" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>🪭 L3 : L'Éventail 3 minutes</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Trouver et adopter une vitesse rapide permettant d'être performant sur des durées courtes (3 mins). Apprendre à ne pas "exploser".</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🧠</span>
+                        <span class="info-title">Focus Académique</span>
+                        <span class="info-desc">Situation séquencée : les mauvais choix d'allure sont sanctionnés immédiatement par la perte de points.</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> L'Éventail (6 x 30 secondes)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif (Zone de départ au centre)</h4>
+                            <p>Placez 5 plots en éventail à des distances variables : <br>
+                            Plot 1 (33m/1pt) • Plot 2 (42m/2pts) • Plot 3 (50m/3pts) • Plot 4 (58m/4pts) • Plot 5 (67m/5pts).<br>
+                            Le prof siffle toutes les 30 secondes (soit 6 courses pour un total de 3 minutes).</p>
+                            <a href="https://drive.google.com/file/d/1sIJ55bikFoYAMeVvFaqawo09V7i6ljk_/view?usp=drivesdk" target="_blank" class="btn-fiche">📄 Ouvrir la Fiche PDF (L'éventail)</a>
+                        </div>
+                        <div class="phase-box">
+                            <h4>🗣️ Consignes aux élèves</h4>
+                            <p>"Choisissez un plot à contourner. Vous devez être revenus dans la zone de départ AVANT le coup de sifflet des 30 secondes."</p>
+                            <ul>
+                                <li><strong>En retard :</strong> "Si le sifflet retentit et que vous n'êtes pas dans la zone, c'est 0 point pour ce tour."</li>
+                                <li><strong>En avance :</strong> "Si vous revenez avant, vous attendez le sifflet pour repartir. Interdit d'anticiper."</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>2️⃣</span> Analyse et Deuxième Passage</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>👀 Ce que le prof observe</h4>
+                            <p>Ceux qui visent le plot 5 (16km/h) dès le début risquent de ne pas revenir à temps sur les courses 4, 5 et 6 ("hors délai").</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>✅ Projet de course (2ème passage)</h4>
+                            <p>Les élèves repartent pour un 2ème essai de 3 minutes. Le but est d'avoir un projet plus fin : viser le plot qui rapporte le max de points <strong>en étant régulier</strong> sur les 6 courses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 4 ================= -->
+        <div id="tab-s4" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>🔀 L4 : Le Multiparcours (Choisis ton effort)</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Différencier physiquement la marche, le footing lent et la course. Apprendre à moduler ses allures sans céder à la tentation de s'arrêter.</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Dispositif du Multiparcours (9 minutes)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Organisation (Zone Centrale)</h4>
+                            <p>Créez 3 parcours distincts qui partent et reviennent à une <strong>Zone de choix centrale</strong> :</p>
+                            <ul>
+                                <li><span class="badge-allure bg-marche">Parcours Vert</span> 20m. Marche rapide = <strong>1 pt</strong>.</li>
+                                <li><span class="badge-allure bg-footing">Parcours Bleu</span> 40m. Course lente (trot) = <strong>2 pts</strong>.</li>
+                                <li><span class="badge-allure bg-vma">Parcours Orange</span> 50m. Course soutenue = <strong>3 pts</strong>.</li>
+                            </ul>
+                            <a href="https://drive.google.com/file/d/1f3SuoYN8lCmwkALMRT2Dn0Kd09XiZW8L/view?usp=drivesdk" target="_blank" class="btn-fiche">📄 Ouvrir la Fiche PDF (Multiparcours)</a>
+                        </div>
+                        <div class="phase-box">
+                            <h4>🗣️ Consignes et Rôles</h4>
+                            <p>"Pendant 9 minutes, vous devez enchaîner les parcours sans vous arrêter. À chaque retour dans la zone centrale, vous avez le droit de changer de parcours en fonction de votre fatigue."</p>
+                            <p><strong>Observateur :</strong> Il valide les points de son coureur. (Si un élève court sur le parcours Vert ou marche sur le parcours Orange = 0 pt pour le tour).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>2️⃣</span> Variantes et Variables Didactiques</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>🔄 Pour les terrains réduits</h4>
+                            <p>Tracez un grand rectangle 40m x 20m (type terrain de Hand).<br>
+                            Largeur (20m) = Vert. Longueur (40m) = Bleu. Diagonale (45m) = Orange. Choix à chaque coin.</p>
+                        </div>
+                        <div class="phase-box">
+                            <h4>⚖️ Régulations du prof</h4>
+                            <p>Si la classe marche trop : "Interdiction d'enchaîner deux parcours Verts de suite." ou "Bonus de points si vous validez 6 parcours Oranges."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 5 ================= -->
+        <div id="tab-s5" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>📈 L5 : Fiche "Aller plus haut" (Bilan d'étape)</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Situer son niveau de performance sur les 2 temps de course (9' et 3') par rapport à sa VMA, et visualiser ses progrès (Médailles).</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📝</span>
+                        <span class="info-title">Outil du Prof</span>
+                        <span class="info-desc">Utilisation de la fiche individuelle "Aller plus haut !" calibrée par groupe de VMA (ex: La fiche des "Loups" pour VMA 11).</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Présentation de la Fiche (Test 9' et 3')</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Les Zones de Performance</h4>
+                            <p>L'élève récupère sa fiche (adaptée à sa VMA). Les colonnes indiquent des zones de couleurs selon la distance :</p>
+                            <ul>
+                                <li><strong>Pour le 9' :</strong> Zone Verte (>80% VMA), Zone Orange (>70%).</li>
+                                <li><strong>Pour le 3' :</strong> Zone Verte (100% VMA), Zone Orange (>90%).</li>
+                            </ul>
+                        </div>
+                        <div class="phase-box">
+                            <h4>🗣️ Les Objectifs du Prof (Pastilles)</h4>
+                            <p>"Aujourd'hui, j'ai mis une pastille de couleur sur votre fiche pour le 9' et le 3'. C'est votre objectif. Si vous l'atteignez, vous notez la date à côté et vous gagnez une médaille."</p>
+                            <div class="astuce-prof"><strong>L'idée :</strong> Guider progressivement l'élève vers les deux zones vertes, sans qu'il ne "grille" toute son énergie sur la 1ère course de 9'.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 6 ================= -->
+        <div id="tab-s6" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>🏠 L6 : Le Refuge (Course par séquences)</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Adopter une vitesse "moyenne" permettant de "tenir" sur des temps de course assez longs, tout en étant performant.</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Le Refuge (10 x 1 minute)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif & Contrat</h4>
+                            <p><strong>Organisation :</strong> Placez une ligne de départ centrale (Le Refuge) et des plots numérotés de plus en plus loin (66m, 75m, 83m, etc.).<br>
+                            L'élève va courir <strong>10 séquences de 1 minute.</strong> Il doit contourner <strong>LE plot</strong> qui correspond à sa VMA visée, et revenir au refuge avant le sifflet.</p>
+                            <a href="https://drive.google.com/file/d/1APOVmXQSpZ4QQvAFyUPsRwyduEt3rrOU/view?usp=drivesdk" target="_blank" class="btn-fiche">📄 Ouvrir la Fiche PDF (Le Refuge)</a>
+                        </div>
+                        <div class="phase-box">
+                            <h4>🗣️ Consignes & Pénalités</h4>
+                            <p>"Vous partez du refuge. Vous avez 1 minute pour contourner votre plot et revenir. Si vous revenez en retard, c'est une pénalité sur le tableau de la classe."</p>
+                            <div class="astuce-prof"><strong>Analyse :</strong> Un élève qui récolte des pénalités à la fin a mal géré son effort (parti trop vite). Pour éviter les sprints initiaux, vous pouvez aussi mettre une pénalité si l'élève revient "trop en avance" (avant 45 secondes).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 7 ================= -->
+        <div id="tab-s7" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>⛰️ L7 : Le Défi des Montagnes (6 x 3 min)</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">Gérer une charge physique répétée sans effondrement de l'allure (Régularité).</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Les 6 Ascensions (45 min)</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 Dispositif (6 courses de 3 mins)</h4>
+                            <p>L'élève est affecté à une "Montagne" selon sa VMA. Il doit accomplir sa distance cible 6 fois de suite.</p>
+                            <div class="diff-box">
+                                <div class="diff-item diff-vert"><span><strong>🟢 Le Ventoux :</strong> VMA 6 à 8. (Cible : ~7.5 plots).</span></div>
+                                <div class="diff-item diff-rouge"><span><strong>🔴 Pic du Midi :</strong> VMA 8 à 10. (Cible : 1 tour).</span></div>
+                                <div class="diff-item diff-bleu"><span><strong>🔵 Mont Fuji :</strong> VMA 10.5+. (Cible : 1 T + 4 plots).</span></div>
+                            </div>
+                            <a href="https://drive.google.com/file/d/11DpctqRhu3RIwMdiqOCgm0g-qytB5VGY/view?usp=drivesdk" target="_blank" class="btn-fiche">📄 Ouvrir le fichier Excel (Montagnes)</a>
+                        </div>
+                        <div class="phase-box">
+                            <h4>🗣️ Le Rôle du "Sherpa"</h4>
+                            <p>"L'observateur est le guide. Il note la distance à la fin du 3', et donne des conseils pour la prochaine montée."</p>
+                            <p><strong>Bilan de fin :</strong> Demandez : "Avez-vous atteint le sommet à chaque fois ? Sans tomber (sans marcher) ? Étiez-vous partis trop vite ?"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LECON 8 ================= -->
+        <div id="tab-s8" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header">
+                    <h2>🎯 L8 : Affinage du Projet & Répétition Générale</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎯</span>
+                        <span class="info-title">Objectif Pédagogique</span>
+                        <span class="info-desc">L'élève prend des décisions. Il s'engage sur un contrat précis et apprend à l'honorer. C'est la préparation de la note "Écart Projet".</span>
+                    </div>
+                </div>
+
+                <div class="phase-block">
+                    <div class="phase-title"><span>1️⃣</span> Les Courses à Contrat & Répétition</div>
+                    <div class="phase-content">
+                        <div class="phase-box">
+                            <h4>📝 L'Écart Projet</h4>
+                            <p>Sur des enchaînements libres (ex: 3', 6', 3').</p>
+                            <ul>
+                                <li><strong>Avant le départ :</strong> L'élève écrit son projet : "Je vais faire 500m".</li>
+                                <li><strong>Objectif :</strong> Réduire la différence entre la distance annoncée et la distance réellement mesurée par l'observateur.</li>
+                            </ul>
+                        </div>
+                        <div class="phase-box">
+                            <h4>✅ Validation</h4>
+                            <p>Les élèves fixent leurs allures définitives pour l'évaluation. Les observateurs s'entraînent à remplir les fiches de suivi sans faire aucune rature.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= EVALUATION (L9-L10) ================= -->
+        <div id="tab-eval" class="tab-content">
+            <div class="seance-card">
+                <div class="seance-header" style="background: var(--asphalt-dark); color: white; border-bottom: 4px solid var(--track-orange);">
+                    <h2 style="color: white; margin:0;">🏆 L9-L10 : ÉVALUATION CERTIFICATIVE</h2>
+                </div>
+                
+                <div style="padding: 1.5rem;">
+                    
+                    <p style="margin-bottom: 1.5rem; font-size: 1.05rem;">
+                        <strong>Le Format :</strong> L'épreuve finale est un enchaînement de 2 courses : <strong>9 minutes (allure moyenne) puis 3 minutes (allure rapide).</strong><br> 
+                        <span style="color: var(--text-muted);">Les notes sont générées par le tableur de l'enseignant (iDoceo/Excel) d'après les fiches rendues.</span>
+                    </p>
+                    
+                    <div style="text-align: center;">
+                        <a href="https://drive.google.com/file/d/1aojZVq1vGkIYRjzamQGnplOza8hb3SDd/view?usp=sharing" target="_blank" class="btn-fiche-eval">📄 Ouvrir la Fiche PDF (Évaluation)</a>
+                    </div>
+
+                    <table class="eval-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Performances Moteur (Vitesses)</th>
+                                <th style="width: 25%;">Maîtrise & Régularité</th>
+                                <th style="width: 25%;">L'Écart Projet (Gestion)</th>
+                                <th style="width: 25%;">Rôles Sociaux (L'Observateur)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Calcul des Vitesses :</strong><br>
+                                    L'enseignant relève les distances des 2 courses.<br>
+                                    <em>Ex: 1350m en 9' = 9 km/h.</em><br><br>
+                                    <span style="color: var(--track-orange); font-weight: bold;">➜ La note de performance</span> est donnée par la moyenne des deux vitesses rapportée au barème (Filles/Garçons).
+                                </td>
+                                <td>
+                                    <strong>Maintien de l'allure ciblée :</strong><br>
+                                    L'élève a-t-il été capable d'être performant sur les deux temps de course sans s'effondrer ?<br>
+                                    • Son 9' = dans sa zone verte d'endurance.<br>
+                                    • Son 3' = dans sa zone verte de VMA.<br>
+                                    <em>Vérification du déséquilibre entre les deux colonnes de sa fiche.</em>
+                                </td>
+                                <td>
+                                    <strong>S'engager et Assumer :</strong><br>
+                                    Avant l'épreuve, l'élève a annoncé son projet de distance pour les deux courses.<br><br>
+                                    On calcule la différence en mètres entre l'annonce et le réel. <strong>Les écarts les plus faibles donnent la note maximale.</strong>
+                                </td>
+                                <td>
+                                    <strong>Rigueur du Juge :</strong><br>
+                                    Les élèves rendent les fiches à des élèves "Référents" qui n'acceptent aucune fiche mal remplie.<br>
+                                    • Remplissage exact et lisible.<br>
+                                    • Pointage honnête des plots.<br><br>
+                                    <span style="color: var(--track-orange); font-weight: bold;">➜ Note d'investissement.</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de gestion des onglets -->
+    <script>
+        function openTab(tabId, elmnt) {
+            var tabcontents = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].classList.remove("active");
+                tabcontents[i].style.display = "none";
+            }
+            var tablinks = document.getElementById("nav-menu").getElementsByTagName("button");
+            for (var i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            var targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.style.display = "block";
+                setTimeout(function(){
+                    targetTab.classList.add("active");
+                }, 10);
+            }
+            if(elmnt) {
+                elmnt.classList.add("active");
+                try {
+                    elmnt.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                } catch(e) {}
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var firstTab = document.getElementById('tab-s1');
+            if(firstTab) {
+                firstTab.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
